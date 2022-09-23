@@ -8,7 +8,7 @@
 
 void inverte_matrizes(int* **matriz_A, int* **matriz_B);
 void zera_matriz(int** matriz, int tam);
-void InicializaFormas(int** matriz,int N);
+void InicializaFormas(int** matriz);
 int numero_vizinhos(int** matriz, int x, int y, int tam);
 
 int main()
@@ -33,7 +33,7 @@ int main()
 
 
     zera_matriz(matriz_ying, N);
-    InicializaFormas(matriz_ying,N);
+    InicializaFormas(matriz_ying);
     zera_matriz(matriz_yang, N);
 
     for(int i = 0;i<N; i++){
@@ -104,7 +104,7 @@ void zera_matriz(int** matriz, int tam)
             matriz[x][y] = 0;
 }
 
-void InicializaFormas(int** matriz, int N)
+void InicializaFormas(int** matriz)
 {
     //GLIDER
     int lin = 1, col = 1;
@@ -113,8 +113,8 @@ void InicializaFormas(int** matriz, int N)
     matriz[lin+2][col  ] = 1;
     matriz[lin+2][col+1] = 1;
     matriz[lin+2][col+2] = 1;
-    if(N < 40){
-    //R-pentomino
+    if(N > 40){
+    //R-entomino
         lin =10; col = 30;
         matriz[lin  ][col+1] = 1;
         matriz[lin  ][col+2] = 1;
