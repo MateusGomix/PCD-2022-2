@@ -1,3 +1,5 @@
+//Falta definir a posi√ß√£o inicial e testar :D
+
 #include <stdio.h>
 
 #define N 4
@@ -9,7 +11,7 @@ int numero_vizinhos(int** matriz, int x, int y, int tam);
 
 int main()
 {
-    //AlocaÁ„o din‚mica das matrizes
+    //Aloca√ß√£o din√¢mica das matrizes
 
     int** matriz_ying;
     int** matriz_yang;
@@ -23,12 +25,12 @@ int main()
         matriz_yang[i] = malloc(N * sizeof(int));
     }
 
-    //ComeÁo da lÛgica
+    //Come√ßo da l√≥gica
 
     zera_matriz(matriz_ying, N);
     zera_matriz(matriz_yang, N);
 
-    //Inicia as geraÁıes
+    //Inicia as gera√ß√µes
     for(int i = 0; i < geracoes; i++)
     {
         for(int x = 0; x < N; x++)
@@ -61,7 +63,7 @@ int main()
 
     printf("%d", soma_final);
 
-    //LiberaÁ„o da memÛria alocada
+    //Libera√ß√£o da mem√≥ria alocada
     for(int i = 0; i < N; i++)
     {
         free(matriz_ying[i]);
