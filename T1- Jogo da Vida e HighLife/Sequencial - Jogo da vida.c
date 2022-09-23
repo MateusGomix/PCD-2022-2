@@ -1,12 +1,14 @@
 //Falta definir a posição inicial e testar :D
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define N 4
 #define geracoes 50
 
 void inverte_matrizes(int* **matriz_A, int* **matriz_B);
 void zera_matriz(int** matriz, int tam);
+void InicializaFormas(int** matriz,int N);
 int numero_vizinhos(int** matriz, int x, int y, int tam);
 
 int main()
@@ -16,19 +18,30 @@ int main()
     int** matriz_ying;
     int** matriz_yang;
 
-    matriz_ying = malloc(N * sizeof(int*));
-    matriz_yang = malloc(N * sizeof(int*));
+    matriz_ying = (int**) malloc(N * sizeof(int*));
+    matriz_yang = (int**) malloc(N * sizeof(int*));
+
 
     for(int i = 0; i < N; i++)
     {
-        matriz_ying[i] = malloc(N * sizeof(int));
-        matriz_yang[i] = malloc(N * sizeof(int));
+        matriz_ying[i] = (int*) malloc(N * sizeof(int));
+        matriz_yang[i] = (int*) malloc(N * sizeof(int));
     }
-
     //Começo da lógica
 
+    matriz_yang[0][0] = 0;
+
+
     zera_matriz(matriz_ying, N);
+    InicializaFormas(matriz_ying,N);
     zera_matriz(matriz_yang, N);
+
+    for(int i = 0;i<N; i++){
+        for(int j = 0;j<N; j++){
+            printf("%d  ",matriz_yang[i][j]);
+        }
+        printf("\n");
+    }
 
     //Inicia as gerações
     for(int i = 0; i < geracoes; i++)
@@ -40,7 +53,7 @@ int main()
                 //Regras do jogo da vida
                 int n_viz = numero_vizinhos(matriz_ying, x, y, N);
 
-                if((n_viz == 2 && matriz_ying[x][y] == 1) || n_viz == 3)
+                if((n_viz == 2) || n_viz == 3)
                 {
                     matriz_yang[x][y] = 1;
                 }
@@ -77,10 +90,11 @@ int main()
 
 void inverte_matrizes(int* **matriz_A, int* **matriz_B)
 {
-    int aux = *matriz_A;
+    int **aux = *matriz_A;
 
     *matriz_A = *matriz_B;
     *matriz_B = aux;
+
 }
 
 void zera_matriz(int** matriz, int tam)
@@ -88,6 +102,27 @@ void zera_matriz(int** matriz, int tam)
     for(int x = 0; x < tam; x ++)
         for(int y = 0; y < tam; y++)
             matriz[x][y] = 0;
+}
+
+void InicializaFormas(int** matriz, int N)
+{
+    //GLIDER
+    int lin = 1, col = 1;
+    matriz[lin  ][col+1] = 1;
+    matriz[lin+1][col+2] = 1;
+    matriz[lin+2][col  ] = 1;
+    matriz[lin+2][col+1] = 1;
+    matriz[lin+2][col+2] = 1;
+    if(N < 40){
+    //R-pentomino
+        lin =10; col = 30;
+        matriz[lin  ][col+1] = 1;
+        matriz[lin  ][col+2] = 1;
+        matriz[lin+1][col  ] = 1;
+        matriz[lin+1][col+1] = 1;
+        matriz[lin+2][col+1] = 1;
+    }
+
 }
 
 int numero_vizinhos(int** matriz, int x, int y, int tam)
@@ -128,3 +163,4 @@ int numero_vizinhos(int** matriz, int x, int y, int tam)
 
     return total;
 }
+
