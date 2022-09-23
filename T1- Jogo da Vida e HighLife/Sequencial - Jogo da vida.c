@@ -1,8 +1,9 @@
 //Falta definir a posição inicial e testar :D
-
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#define BILLION  1000000000.0
 #define N 4
 #define geracoes 50
 
@@ -36,13 +37,10 @@ int main()
     InicializaFormas(matriz_ying);
     zera_matriz(matriz_yang, N);
 
-    for(int i = 0;i<N; i++){
-        for(int j = 0;j<N; j++){
-            printf("%d  ",matriz_yang[i][j]);
-        }
-        printf("\n");
-    }
 
+    struct timespec start, end;
+ 
+    clock_gettime(CLOCK_REALTIME, &start);
     //Inicia as gerações
     for(int i = 0; i < geracoes; i++)
     {
@@ -74,7 +72,14 @@ int main()
         for(int y = 0; y < N; y++)
             soma_final += matriz_ying[x][y];
 
-    printf("%d", soma_final);
+    clock_gettime(CLOCK_REALTIME, &end);
+
+    double time_spent = (end.tv_sec - start.tv_sec) +
+                        (end.tv_nsec - start.tv_nsec) / BILLION;
+
+    printf("Duração: %f\n", time_spent);
+
+    printf("Somatório: %d\n\n", soma_final);
 
     //Liberação da memória alocada
     for(int i = 0; i < N; i++)
