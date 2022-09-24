@@ -1,10 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define N 100
-#define geracoes 2000
+#define N 2048
+#define geracoes 4
 
-void inverte_matrizes(int* **matriz_A, int* **matriz_B);
 void zera_matriz(int** matriz, int tam);
 int numero_vizinhos(int** matriz, int x, int y, int tam);
 
@@ -68,8 +67,8 @@ int main()
             }
         }
 
-        //Inverte o conteúdo das matrizes
-        inverte_matrizes(&matriz_ying, &matriz_yang);
+        //Passa o conteúdo das matrizes
+        matriz_ying = matriz_yang;
     }
 
     //Faz a soma final
@@ -82,23 +81,15 @@ int main()
     printf("%d", soma_final);
 
     //Liberação da memória alocada
-    for(int i = 0; i < N; i++)
+    /*for(int i = 0; i < N; i++)
     {
         free(matriz_ying[i]);
         free(matriz_yang[i]);
     }
     free(matriz_ying);
-    free(matriz_yang);
+    free(matriz_yang);*/
 
     return 0;
-}
-
-void inverte_matrizes(int* **matriz_A, int* **matriz_B)
-{
-    int aux = *matriz_A;
-
-    matriz_A = matriz_B;
-    matriz_B = aux;
 }
 
 void zera_matriz(int** matriz, int tam)
@@ -112,37 +103,39 @@ int numero_vizinhos(int** matriz, int x, int y, int tam)
 {
     int total = 0;
 
+    //Esquerda
     if(x - 1 >= 0)
-    {
         total += matriz[x-1][y];
 
-        if(y - 1 >= 0)
-            total += matriz[x-1][y-1];
-    }
+    //Diagonal Esquerda - Cima
+    if(y - 1 >= 0 && x - 1 >= 0)
+        total += matriz[x-1][y-1];
 
+    //Cima
     if(y - 1 >= 0)
-    {
         total += matriz[x][y-1];
 
-        if(x + 1 < tam)
-            total += matriz[x+1][y-1];
-    }
+    //Diagonal Direita - Cima
+    if(x + 1 < tam && y - 1 >= 0)
+        total += matriz[x+1][y-1];
 
+    //Direita
     if(x + 1 < tam)
-    {
         total += matriz[x+1][y];
 
-        if(y + 1 < tam)
-            total += matriz[x+1][y+1];
-    }
+    //Diagonal Direita - Baixo
+    if(y + 1 < tam && x + 1 < tam)
+        total += matriz[x+1][y+1];
 
+    //Baixo
     if(y + 1 < tam)
-    {
         total += matriz[x][y+1];
 
-        if(x - 1 >= 0)
-            total += matriz[x-1][y+1];
-    }
+    //Diagonal Esquerda - Baixo
+    if(x - 1 >= 0 && y + 1 < tam)
+        total += matriz[x-1][y+1];
 
     return total;
 }
+
+
