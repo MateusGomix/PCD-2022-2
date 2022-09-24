@@ -1,3 +1,21 @@
+/*
+    Projeto 02: Map Reduce
+    *--------*-----------------------*
+    |   RA   | Aluno                 |
+    *--------*-----------------------*
+    | 140886 | Mateus Gomes Ferreira |
+    *--------------------------------*
+
+    Usage: 
+    -> Compiled as: gcc -Wall pthreadJogoDaVida.c -o pthreadJogoDaVida 
+    -> Executed as: ./pthreadJogoDaVida -lpthread
+
+    Function:
+    -> 
+*/
+
+
+/*##############< Libs Include >#############*/
 #include <stdio.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -5,13 +23,12 @@
 #include <time.h>
 #include <unistd.h>
 
-#define NUM 10
-#define THREADS_NUMBER 4
-#define PLAY_TIMES 4
+/*##############< Size Parameters >#############*/
+#define NUM 2048
+#define THREADS_NUMBER 8
+#define PLAY_TIMES 2000
 
-int **grid1;
-int **grid2;
-
+/* Grid global pointers */
 int **newgrid;
 int **grid;
 
@@ -24,46 +41,28 @@ typedef struct pos pos;
 
 struct thread_t{
     pthread_t t;
-    pos startEnd[2];
+    pos start;
     int threadNumber;
 };
 
 typedef struct thread_t thread_t;
 
-int numero_vizinhos(int x, int y)
-{
-    int total = 0;
+int numero_vizinhos(int x, int y){
+    int total = 0, row, column;
 
-    if(x - 1 >= 0)
-    {
-        total += grid[x-1][y];
+    for (int i = -1; i < 2; i++){
+        for (int j = -1; j < 2; j++){
+            
+            if(i != 0 || j != 0){
 
-        if(y - 1 >= 0)
-            total += grid[x-1][y-1];
-    }
+                row = (x + i) % NUM;
+                if (row < 0) row = NUM - 1;
+                column = (y + j) % NUM;
+                if (column < 0) column = NUM - 1;
 
-    if(y - 1 >= 0)
-    {
-        total += grid[x][y-1];
-
-        if(x + 1 < NUM)
-            total += grid[x+1][y-1];
-    }
-
-    if(x + 1 < NUM)
-    {
-        total += grid[x+1][y];
-
-        if(y + 1 < NUM)
-            total += grid[x+1][y+1];
-    }
-
-    if(y + 1 < NUM)
-    {
-        total += grid[x][y+1];
-
-        if(x - 1 >= 0)
-            total += grid[x-1][y+1];
+                total += grid[row][column];
+            }
+        }
     }
 
     return total;
@@ -77,20 +76,28 @@ void *parsing(void *args){
 
     pos currentCell;
 
-    currentCell.row = aux[0].row;
-    currentCell.column = aux[0].column;
+    currentCell.row = aux->row;
+    currentCell.column = aux->column;
 
-    for(int i = 0; i < (NUM * NUM) / THREADS_NUMBER; i++){
+    //printf("%d %d\n", currentCell.row, currentCell.column);
+
+    for(int i = 0; i < ((NUM * NUM) / THREADS_NUMBER); i++){
         int neighborsNumber = numero_vizinhos(currentCell.row, currentCell.column);
 
         if(grid[currentCell.row][currentCell.column] == 1){
-            if(neighborsNumber != 2 || neighborsNumber != 3){
+            if(neighborsNumber == 2 || neighborsNumber == 3){
+                newgrid[currentCell.row][currentCell.column] = 1;
+            }
+            else{
                 newgrid[currentCell.row][currentCell.column] = 0;
             }
         }
         else{
             if(neighborsNumber == 3){
                 newgrid[currentCell.row][currentCell.column] = 1;
+            }
+            else{
+                newgrid[currentCell.row][currentCell.column] = 0;
             }
         }
         if((currentCell.column + 1) >= NUM){
@@ -112,30 +119,22 @@ void swap(void){
 
 }
 
-void split(thread_t *current, thread_t *previous){
-    int newStart[2] = {0,0};
+void split(thread_t *current){
 
-    if(previous != NULL){
-        newStart[0] = previous->startEnd[1].row;
-        newStart[1] = previous->startEnd[1].column;
-    }
+    current->start.column = current->threadNumber * ((NUM * NUM / THREADS_NUMBER) % NUM);
+    current->start.row = current->threadNumber * (NUM * NUM / THREADS_NUMBER) / NUM;
 
-    current->startEnd[0].row = newStart[0];
-    current->startEnd[0].column = newStart[1];
-
-    current->startEnd[1].row = (newStart[0] + NUM * NUM / THREADS_NUMBER) % NUM;
-    current->startEnd[1].column = (newStart[1] + NUM * NUM / THREADS_NUMBER) % NUM;
+    //current->start.row = 1;
+    //current->start.column = 3;
 
     return;
 }
 
 void init(thread_t *parsersInit){
-    thread_t *prev = NULL;
 
     for(int i = 0; i < THREADS_NUMBER; i++){
         parsersInit[i].threadNumber = i;
-        split(&parsersInit[i], prev);
-        prev = &parsersInit[i];
+        split(&parsersInit[i]);
     }
 
     for(int i = 0; i < NUM; i++){
@@ -155,12 +154,12 @@ void init(thread_t *parsersInit){
     grid[lin+2][col+2] = 1;
 
     //R-pentomino
-    /* =10; col = 30;
+    lin = 10; col = 30;
     grid[lin  ][col+1] = 1;
     grid[lin  ][col+2] = 1;
     grid[lin+1][col  ] = 1;
     grid[lin+1][col+1] = 1;
-    grid[lin+2][col+1] = 1;*/
+    grid[lin+2][col+1] = 1;
 
     return;
 
@@ -189,11 +188,14 @@ void printGrid(void){
 
     printf("------------------------------------------------------------------------------\n");
 
-    sleep(5);
+    //sleep(5);
 
 }
 
 int main(){
+
+    int **grid1;
+    int **grid2;
 
     grid1 = (int**) malloc(NUM * sizeof(int*));
     grid2 = (int**) malloc(NUM * sizeof(int*));
@@ -203,19 +205,19 @@ int main(){
         grid2[i] = (int*) malloc(NUM * sizeof(int));
     }
 
-    newgrid = grid1;
-    grid    = grid2;
+    newgrid = (int **) grid1;
+    grid    = (int **) grid2;
 
     thread_t sweepers[THREADS_NUMBER];
 
     init(sweepers);
 
-    printGrid();
+    //printGrid();
 
     for(int i = 0; i < PLAY_TIMES; i++){
 
         for(int j = 0; j < THREADS_NUMBER; j++){
-            pthread_create(&sweepers[j].t, NULL, parsing, &sweepers[j].startEnd);
+            pthread_create(&sweepers[j].t, NULL, parsing, &sweepers[j].start);
         }
 
         for(int j = 0; j < THREADS_NUMBER; j++){
@@ -224,10 +226,10 @@ int main(){
 
         swap();
 
-        printGrid();
+        //printGrid();
     }
 
-    printf("%d", count());
+    printf("%d\n", count());
 
     return 0;
 }
