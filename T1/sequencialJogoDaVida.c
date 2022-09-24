@@ -137,5 +137,3 @@ int numero_vizinhos(int** matriz, int x, int y, int tam)
 
     return total;
 }
-
-
