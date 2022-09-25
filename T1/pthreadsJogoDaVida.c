@@ -28,10 +28,16 @@
 #define THREADS_NUMBER 8
 #define PLAY_TIMES 2000
 
+/*##############< Mode controller >#############*/
+#define HIGH_LIFE 1
+
 /* Grid global pointers */
 int **newgrid;
 int **grid;
 
+/* Stores the position of a cell
+ * from the grids
+ */
 struct pos{
     int row;
     int column;
@@ -39,6 +45,9 @@ struct pos{
 
 typedef struct pos pos;
 
+/* Stores information that each
+ * thread needs when starts running
+ */
 struct thread_t{
     pthread_t t;
     pos start;
@@ -47,7 +56,10 @@ struct thread_t{
 
 typedef struct thread_t thread_t;
 
-int numero_vizinhos(int x, int y){
+/* Return the number of alive neighbors
+ * from a given cell in the grid
+ */
+int getNeighbors(int x, int y){
     int total = 0, row, column;
 
     for (int i = -1; i < 2; i++){
@@ -68,10 +80,11 @@ int numero_vizinhos(int x, int y){
     return total;
 }
 
+/* Method that implements the thread
+ * - it runs the grid from its start position
+ * and updates the corresponding cell in the newgrid
+ */
 void *parsing(void *args){
-
-    //printf("AAAA");
-
     pos *aux = (pos *) args;
 
     pos currentCell;
@@ -79,10 +92,8 @@ void *parsing(void *args){
     currentCell.row = aux->row;
     currentCell.column = aux->column;
 
-    //printf("%d %d\n", currentCell.row, currentCell.column);
-
     for(int i = 0; i < ((NUM * NUM) / THREADS_NUMBER); i++){
-        int neighborsNumber = numero_vizinhos(currentCell.row, currentCell.column);
+        int neighborsNumber = getNeighbors(currentCell.row, currentCell.column);
 
         if(grid[currentCell.row][currentCell.column] == 1){
             if(neighborsNumber == 2 || neighborsNumber == 3){
@@ -93,7 +104,7 @@ void *parsing(void *args){
             }
         }
         else{
-            if(neighborsNumber == 3){
+            if(neighborsNumber == 3 || (HIGH_LIFE && neighborsNumber == 6)){
                 newgrid[currentCell.row][currentCell.column] = 1;
             }
             else{
@@ -107,9 +118,10 @@ void *parsing(void *args){
     }
 
     pthread_exit(0);
-
 }
 
+/* Swaps the pointers to the grids
+ */
 void swap(void){
 
     int **aux = grid;
@@ -117,19 +129,24 @@ void swap(void){
     grid = newgrid;
     newgrid = aux;
 
+    return;
 }
 
+/* Sets the starting cell for each thread
+ */
 void split(thread_t *current){
 
     current->start.column = current->threadNumber * ((NUM * NUM / THREADS_NUMBER) % NUM);
     current->start.row = current->threadNumber * (NUM * NUM / THREADS_NUMBER) / NUM;
 
-    //current->start.row = 1;
-    //current->start.column = 3;
-
     return;
 }
 
+/* Initiates the threads structure
+ * with a identifier number and its starting cell
+ * also fills the grids with 0s 
+ * and creates the initial population
+ */
 void init(thread_t *parsersInit){
 
     for(int i = 0; i < THREADS_NUMBER; i++){
@@ -162,9 +179,10 @@ void init(thread_t *parsersInit){
     grid[lin+2][col+1] = 1;
 
     return;
-
 }
 
+/* Returns the number of alive cells in the grid
+ */
 int count(void){
     int total = 0;
 
@@ -177,6 +195,8 @@ int count(void){
     return total;
 }
 
+/* Prints the current grid
+ */
 void printGrid(void){
 
     for(int i = 0; i < NUM; i++){
@@ -190,8 +210,11 @@ void printGrid(void){
 
     //sleep(5);
 
+    return;
 }
 
+
+/*##############< Main Program >#############*/
 int main(){
 
     int **grid1;
