@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BILLION  1000000000.0
 #define N 2048
 #define geracoes 4
 
@@ -85,7 +84,7 @@ int main()
     clock_gettime(CLOCK_REALTIME, &end);
 
     double time_spent = (end.tv_sec - start.tv_sec) +
-                        (end.tv_nsec - start.tv_nsec) / BILLION;
+                        (end.tv_nsec - start.tv_nsec) / 1000000000.0;
 
     
     
