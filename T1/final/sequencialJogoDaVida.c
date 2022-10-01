@@ -1,12 +1,10 @@
+//Falta definir a posição inicial e testar :D
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 
 #define N 2048
 #define geracoes 2000
-
-#define nThreads 4
 
 void inverte_matrizes(int* **matriz_A, int* **matriz_B);
 void zera_matriz(int** matriz);
@@ -48,17 +46,14 @@ int main()
     InicializaFormas(matriz_ying);
     zera_matriz(matriz_yang);
 
-    //print_matriz(matriz_ying);
+//    print_matriz(matriz_ying);
 
-    double start;
-    double end;
-    start = omp_get_wtime();
+    struct timespec start, end;
 
+    clock_gettime(CLOCK_REALTIME, &start);
     //Inicia as gerações
-
     for(int i = 0; i < geracoes; i++)
     {
-        #pragma omp parallel for num_threads(nThreads)
         for(int x = 0; x < N; x++)
         {
             for(int y = 0; y < N; y++)
@@ -86,8 +81,14 @@ int main()
         for(int y = 0; y < N; y++)
             soma_final += matriz_ying[x][y];
 
-    end = omp_get_wtime();
-    printf("Tempo parcial %.2f seconds\n", end - start);
+    clock_gettime(CLOCK_REALTIME, &end);
+
+    double time_spent = (end.tv_sec - start.tv_sec) +
+                        (end.tv_nsec - start.tv_nsec) / 1000000000.0;
+
+    
+    
+    printf("Duração: %f\n", time_spent);
 
     printf("Somatório: %d\n\n", soma_final);
 
