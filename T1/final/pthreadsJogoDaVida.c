@@ -30,7 +30,7 @@
 #define PLAY_TIMES 2000
 
 /*##############< Mode controller >#############*/
-#define HIGH_LIFE 1
+#define HIGH_LIFE 0
 
 /* Grid global pointers */
 int **newgrid;
@@ -38,22 +38,11 @@ int **grid;
 
 pthread_barrier_t barrier;
 
-/* Stores the position of a cell
- * from the grids
- */
-struct pos{
-    int row;
-    int column;
-};
-
-typedef struct pos pos;
-
 /* Stores information that each
  * thread needs when starts running
  */
 struct thread_t{
     pthread_t t;
-    //pos start;
     int threadNumber;
 };
 
@@ -63,7 +52,6 @@ typedef struct thread_t thread_t;
 int numero_vizinhos(int** matriz, int x, int y);
 void swap(void);
 void *parsing(void *args);
-void split(thread_t *current);
 void init(thread_t *parsersInit);
 int count(void);
 void printGrid(void);
@@ -136,14 +124,14 @@ int main(){
 int numero_vizinhos(int** matriz, int x, int y)
 {
     int total;
-    int yc = (y - 1)%NUM, yb = (y + 1)%NUM;
-    int xe = (x - 1)%NUM, xd = (x + 1)%NUM;
+    int yc = y - 1, yb = y + 1;
+    int xe = x - 1, xd = x + 1;
 
     if(xe < 0) xe = NUM-1;
-    //else if(xd >= NUM) xd = 0;
+    else if(xd >= NUM) xd = 0;
 
     if(yc < 0) yc = NUM-1;
-    //else if(yb >= NUM) yb = 0;
+    else if(yb >= NUM) yb = 0;
 
     total =   matriz[x][yc]
             + matriz[x][yb]
@@ -183,23 +171,6 @@ void *parsing(void *args){
 
                 int neighborsNumber = numero_vizinhos(grid, i, j);
 
-                /*if(grid[i][j] == 1){
-                    if(neighborsNumber == 2 || neighborsNumber == 3){
-                        newgrid[i][j] = 1;
-                    }
-                    else{
-                        newgrid[i][j] = 0;
-                    }
-                }
-                else{
-                    if(neighborsNumber == 3 || (HIGH_LIFE && neighborsNumber == 6)){
-                        newgrid[i][j] = 1;
-                    }
-                    else{
-                        newgrid[i][j] = 0;
-                    }
-                }*/
-
                 if(neighborsNumber == 3 || (neighborsNumber == 2 && grid[i][j] == 1) || (neighborsNumber == 6 && HIGH_LIFE && grid[i][j] == 0)){
                     newgrid[i][j] = 1;
                 }else
@@ -218,16 +189,6 @@ void *parsing(void *args){
     pthread_exit(0);
 }
 
-/* Sets the starting cell for each thread
- */
-void split(thread_t *current){
-
-    //current->start.column = current->threadNumber * ((NUM * NUM / THREADS_NUMBER) % NUM);
-    //current->start.row = current->threadNumber * (NUM * NUM / THREADS_NUMBER) / NUM;
-
-    return;
-}
-
 /* Initiates the threads structure
  * with a identifier number and its starting cell
  * also fills the grids with 0s
@@ -237,7 +198,6 @@ void init(thread_t *parsersInit){
 
     for(int i = 0; i < THREADS_NUMBER; i++){
         parsersInit[i].threadNumber = i;
-        //split(&parsersInit[i]);
     }
 
     for(int i = 0; i < NUM; i++){
