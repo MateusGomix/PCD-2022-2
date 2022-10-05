@@ -3,17 +3,12 @@
     *--------*-----------------------*
     |   RA   | Aluno                 |
     *--------*-----------------------*
+    | 142477 | Luiz Felipe           |
     | 140886 | Mateus Gomes Ferreira |
+    | 140729 | Rafael Nascimento     |
     *--------------------------------*
-
-    Usage: 
-    -> Compiled as: gcc -Wall pthreadJogoDaVida.c -o pthreadJogoDaVida 
-    -> Executed as: ./pthreadJogoDaVida -lpthread
-
-    Function:
-    -> 
 */
-
+ 
 
 /*##############< Libs Include >#############*/
 #include <stdio.h>
@@ -25,9 +20,9 @@
 #include <sys/time.h>
 
 /*##############< Size Parameters >#############*/
-#define NUM 2048
+#define NUM 50
 #define THREADS_NUMBER 4
-#define PLAY_TIMES 2000
+#define PLAY_TIMES 5
 
 /*##############< Mode controller >#############*/
 #define HIGH_LIFE 0
@@ -76,15 +71,10 @@ int main(){
     grid    = (int **) grid2;
 
     thread_t sweepers[THREADS_NUMBER];
-    //gettimeofday(&inicio, NULL);
+
     init(sweepers);
-    //gettimeofday(&final2, NULL);
 
-    //tmili = (int) (1000 * (final2.tv_sec - inicio.tv_sec) + (final2.tv_usec - inicio.tv_usec) / 1000);
-
-    //printf("tempo decorrido da init: %d milisegundos\n", tmili);
-
-    //printGrid();
+    printGrid();
 
     pthread_barrier_init(&barrier, NULL, THREADS_NUMBER);
 
@@ -100,7 +90,7 @@ int main(){
 
     gettimeofday(&final2, NULL);
 
-    //printGrid();
+    printGrid();
 
     tmili = (int) (1000 * (final2.tv_sec - inicio.tv_sec) + (final2.tv_usec - inicio.tv_usec) / 1000);
 

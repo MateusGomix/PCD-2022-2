@@ -1,17 +1,12 @@
 /*
-    Projeto 01: Jogo da vida com openmp
+    Projeto 01: Jogo da vida com pthreads
     *--------*-----------------------*
     |   RA   | Aluno                 |
     *--------*-----------------------*
+    | 142477 | Luiz Felipe           |
     | 140886 | Mateus Gomes Ferreira |
+    | 140729 | Rafael Nascimento     |
     *--------------------------------*
-
-    Usage: 
-    -> Compiled as: gcc -Wall pthreadJogoDaVida.c -o pthreadJogoDaVida 
-    -> Executed as: ./pthreadJogoDaVida -lpthread
-
-    Function:
-    -> 
 */
 
 
