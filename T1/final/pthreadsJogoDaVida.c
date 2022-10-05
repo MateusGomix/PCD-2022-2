@@ -21,11 +21,7 @@
 #include <omp.h>
 
 /*##############< Size Parameters >#############*/
-<<<<<<< HEAD
-#define NUM 50
-=======
 #define N 2048
->>>>>>> 1f042917e87b3c9c57a3aeac2b00082123635b64
 #define THREADS_NUMBER 4
 #define PLAY_TIMES 5
 
