@@ -21,12 +21,12 @@
 #include <omp.h>
 
 /*##############< Size Parameters >#############*/
-#define N 2048
+#define N 50
 #define THREADS_NUMBER 4
 #define PLAY_TIMES 5
 
 /*##############< Mode controller >#############*/
-#define HIGH_LIFE 1
+#define HIGH_LIFE 0
 
 /* Grid global pointers */
 int **newgrid;
