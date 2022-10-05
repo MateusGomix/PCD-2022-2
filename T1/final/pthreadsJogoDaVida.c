@@ -72,11 +72,8 @@ int main(){
     thread_t sweepers[THREADS_NUMBER];
 
     init(sweepers);
-<<<<<<< HEAD
 
     printGrid();
-=======
->>>>>>> 1f042917e87b3c9c57a3aeac2b00082123635b64
 
     pthread_barrier_init(&barrier, NULL, THREADS_NUMBER);
 
