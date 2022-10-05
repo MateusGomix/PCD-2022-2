@@ -18,8 +18,8 @@
 
 /*##############< Size Parameters >#############*/
 #define N 2048
-#define geracoes 2000
-#define nThreads 4
+#define PLAY_TIMES 2000
+#define THREADS_NUMBER 4
 
 /*##############< Mode controller >#############*/
 #define HIGH_LIFE 1
@@ -30,6 +30,7 @@ void zera_matriz(int** matriz);
 void InicializaFormas(int** matriz);
 int numero_vizinhos(int** matriz, int x, int y);
 void print_matriz(int** matriz);
+void SaidaFinal(double start,int soma_final);
 
 /*##############< Main Program >#############*/
 int main()
@@ -60,14 +61,13 @@ int main()
     //print_matriz(matriz_ying);
 
     double start;
-    double end;
     start = omp_get_wtime();
 
     //Inicia as gerações
 
-    for(int i = 0; i < geracoes; i++)
+    for(int i = 0; i < PLAY_TIMES; i++)
     {
-        #pragma omp parallel for num_threads(nThreads)
+        #pragma omp parallel for num_threads(THREADS_NUMBER)
         for(int x = 0; x < N; x++)
         {
             for(int y = 0; y < N; y++)
@@ -80,12 +80,7 @@ int main()
                     matriz_yang[x][y] = 0;
             }
         }
-
         inverte_matrizes(&matriz_ying, &matriz_yang);
-
-//        printf("%d \n", i);
-//        print_matriz(matriz_ying);
-
     }
 
     //Faz a soma final
@@ -95,16 +90,7 @@ int main()
         for(int y = 0; y < N; y++)
             soma_final += matriz_ying[x][y];
 
-    end = omp_get_wtime();
-
-    if(HIGH_LIFE) printf("< HIGHLIFE >\n");
-    else printf("< JOGO DA VIDA >\n");
-
-    printf("Dimensões: %dx%d \nThreads: %d \nGerações: %d \n------------------------- \n", N, N, nThreads, geracoes);
-
-    printf("Tempo paralelo: %.3fs\n", end - start);
-
-    printf("Somatório: %d\n\n", soma_final);
+    SaidaFinal(start,soma_final);
 
     //Liberação da memória alocada
     for(int i = 0; i < N; i++)
@@ -116,6 +102,19 @@ int main()
     free(matriz_yang);
 
     return 0;
+}
+
+void SaidaFinal(double start,int soma_final){
+    double end = omp_get_wtime();
+
+    if(HIGH_LIFE) printf("< HIGHLIFE >\n");
+    else printf("< JOGO DA VIDA >\n");
+
+    printf("Dimensões: %dx%d \nTHREADS_NUMBER: %d \nGerações: %d \n------------------------- \n", N, N, THREADS_NUMBER, PLAY_TIMES);
+
+    printf("Tempo paralelo: %.3fs\n", end - start);
+
+    printf("Somatório: %d\n\n", soma_final);
 }
 
 void print_matriz(int** matriz)

@@ -1,29 +1,23 @@
-//Falta definir a posição inicial e testar :D
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 
 #define N 2048
-#define geracoes 2000
-
+#define PLAY_TIMES 2000
+#define THREADS_NUMBER 1
+#define HIGH_LIFE 1
 void inverte_matrizes(int* **matriz_A, int* **matriz_B);
 void zera_matriz(int** matriz);
 void InicializaFormas(int** matriz);
 int numero_vizinhos(int** matriz, int x, int y);
+void SaidaFinal(double start,int soma_final);
 
-void print_matriz(int** matriz)
-{
-    for(int x = 0; x < N; x ++){
-        for(int y = 0; y < N; y++)
-            printf("%d ", matriz[x][y]);
-        printf("\n");
-    }
-}
+
 
 
 int main()
 {
-    //Alocação dinâmica das matrizes
 
     int** matriz_ying;
     int** matriz_yang;
@@ -48,11 +42,10 @@ int main()
 
 //    print_matriz(matriz_ying);
 
-    struct timespec start, end;
+    double start;
+    start = omp_get_wtime();
 
-    clock_gettime(CLOCK_REALTIME, &start);
-    //Inicia as gerações
-    for(int i = 0; i < geracoes; i++)
+    for(int i = 0; i < PLAY_TIMES; i++)
     {
         for(int x = 0; x < N; x++)
         {
@@ -60,7 +53,7 @@ int main()
             {
                 //Regras do jogo da vida
                 int n_viz = numero_vizinhos(matriz_ying, x, y);
-                if(n_viz == 3 || (n_viz == 2 && matriz_ying[x][y] == 1)){
+                if(n_viz == 3 || (n_viz == 2 && matriz_ying[x][y] == 1) || (n_viz == 6 && HIGH_LIFE && matriz_ying[x][y] == 0)){
                     matriz_yang[x][y] = 1;
                 }else
                     matriz_yang[x][y] = 0;
@@ -69,30 +62,19 @@ int main()
 
         inverte_matrizes(&matriz_ying, &matriz_yang);
 
-//        printf("%d \n", i);
-//        print_matriz(matriz_ying);
+
 
     }
 
-    //Faz a soma final
     int soma_final = 0;
 
     for(int x = 0; x < N; x++)
         for(int y = 0; y < N; y++)
             soma_final += matriz_ying[x][y];
 
-    clock_gettime(CLOCK_REALTIME, &end);
+    SaidaFinal(start,soma_final);
 
-    double time_spent = (end.tv_sec - start.tv_sec) +
-                        (end.tv_nsec - start.tv_nsec) / 1000000000.0;
 
-    
-    
-    printf("Duração: %f\n", time_spent);
-
-    printf("Somatório: %d\n\n", soma_final);
-
-    //Liberação da memória alocada
     for(int i = 0; i < N; i++)
     {
         free(matriz_ying[i]);
@@ -102,6 +84,19 @@ int main()
     free(matriz_yang);
 
     return 0;
+}
+
+void SaidaFinal(double start,int soma_final){
+    double end = omp_get_wtime();
+
+    if(HIGH_LIFE) printf("< HIGHLIFE >\n");
+    else printf("< JOGO DA VIDA >\n");
+
+    printf("Dimensões: %dx%d \nThreads: %d \nGerações: %d \n------------------------- \n", N, N, THREADS_NUMBER, PLAY_TIMES);
+
+    printf("Tempo paralelo: %.3fs\n", end - start);
+
+    printf("Somatório: %d\n\n", soma_final);
 }
 
 void inverte_matrizes(int* **matriz_A, int* **matriz_B)
