@@ -1,5 +1,5 @@
 /*
-    Projeto 01: Jogo da vida com pthreads
+    Projeto 01: Jogo da vida com OpenMP
     *--------*-----------------------*
     |   RA   | Aluno                 |
     *--------*-----------------------*

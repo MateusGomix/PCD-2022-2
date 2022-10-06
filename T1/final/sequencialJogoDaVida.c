@@ -1,10 +1,22 @@
+/*
+    Projeto 01: Jogo da vida Sequencial
+    *--------*-----------------------*
+    |   RA   | Aluno                 |
+    *--------*-----------------------*
+    | 142477 | Luiz Felipe           |
+    | 140886 | Mateus Gomes Ferreira |
+    | 140729 | Rafael Nascimento     |
+    *--------------------------------*
+*/
+
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
 
-#define N 2048
-#define PLAY_TIMES 2000
+#define N 50
+#define PLAY_TIMES 5
 #define THREADS_NUMBER 1
 #define HIGH_LIFE 1
 void inverte_matrizes(int* **matriz_A, int* **matriz_B);
