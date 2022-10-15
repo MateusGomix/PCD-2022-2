@@ -31,7 +31,7 @@ void *client(void *args){
     pthread_barrier_wait(&barrier);
 
     for (int j = 0; j < INCREASE_N; j++){
-        //while (respond != i) request = i;
+        while (respond != i) request = i;
         //critical section start
         int local = SOMA;
         sleep(rand()%2);
@@ -71,6 +71,9 @@ void init(thread_t *array){
 }
 
 int main(void){
+    /* Intializes random number generator */
+    time_t t;
+    srand((unsigned) time(&t));
     //printf("a\n");
     thread_t threadsArray[THREADS_N + 1];
     //printf("b\n");
