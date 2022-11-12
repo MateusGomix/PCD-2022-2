@@ -88,9 +88,10 @@ int main()
 
     double start_soma = omp_get_wtime();
 
-    #pragma omp critical
+    #pragma omp parallel for num_threads(THREADS_NUMBER)
     for(int x = 0; x < N; x++)
         for(int y = 0; y < N; y++)
+            #pragma omp critical
             soma_final += matriz_ying[x][y];
 
     double end_soma = omp_get_wtime();
