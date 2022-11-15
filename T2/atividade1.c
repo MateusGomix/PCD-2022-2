@@ -37,8 +37,8 @@ void *client(void *args){
         sleep(rand()%2);
         SOMA = local + 1;
         printf("SOMA t%d i%d: %d\n", i, j, SOMA);
-        //critical section end
         respond = 0;
+        //critical section end
     }
 
     pthread_exit(0);
