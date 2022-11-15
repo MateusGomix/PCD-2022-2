@@ -1,10 +1,21 @@
+/*
+    Projeto 02: Manna-Pnueli
+    *--------*-----------------------*
+    |   RA   | Aluno                 |
+    *--------*-----------------------*
+    | 142477 | Luiz Felipe           |
+    | 140886 | Mateus Gomes Ferreira |
+    | 140729 | Rafael Nascimento     |
+    *--------------------------------*
+*/
+
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #define INCREASE_N 100
-#define THREADS_N 4
+#define THREADS_N 2
 
 int request = 0;
 int respond = 0;
@@ -31,14 +42,14 @@ void *client(void *args){
     pthread_barrier_wait(&barrier);
 
     for (int j = 0; j < INCREASE_N; j++){
-        while (respond != i) request = i;
+        //while (respond != i) request = i; //disable
         //critical section start
         int local = SOMA;
         sleep(rand()%2);
         SOMA = local + 1;
         printf("SOMA t%d i%d: %d\n", i, j, SOMA);
-        respond = 0;
         //critical section end
+        respond = 0;
     }
 
     pthread_exit(0);
@@ -74,17 +85,16 @@ int main(void){
     /* Intializes random number generator */
     time_t t;
     srand((unsigned) time(&t));
-    //printf("a\n");
+
     thread_t threadsArray[THREADS_N + 1];
-    //printf("b\n");
+
     init(threadsArray);
-    //printf("c\n");
 
     /*for(int i = 0; i < THREADS_N; i++){
         //printf("%d ", threadsArray[i].threadNumber);
         pthread_create(&threadsArray[i].threadsId, NULL, increase, &threadsArray[i].threadNumber);
     }*/
-    //printf("d\n");
+
     /*for (int i = 0; i < INCREASE_N * THREADS_N; i++){
         while(request == 0);
         respond = request;
