@@ -165,27 +165,25 @@ void newGridCalculation(int **grid, int **newgrid, int numberOfRowsPerProc){
     }
 }
 
-void swap(int **grid, int **newgrid, int **aux){
+void swap(int ***grid, int ***newgrid){
 
-    //int **aux = grid;
+    int **aux = *grid;
 
-    aux = grid;
-
-    grid = newgrid;
-    newgrid = aux;
+    *grid = *newgrid;
+    *newgrid = aux;
 
     return;
 }
 
-void gameRounds(int **grid, int **newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId, int **aux){
+void gameRounds(int **grid, int **newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId){
     for(int i = 0; i < ROUNDS; i++){
         exchangeNeighbors(grid, newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, i, processId);
 
-        //newGridCalculation(grid, newgrid, numberOfRowsPerProc);
+        newGridCalculation(grid, newgrid, numberOfRowsPerProc);
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        swap(grid, newgrid, aux);
+        swap(&grid, &newgrid);
 
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -234,7 +232,7 @@ int main(int argc, char * argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &noProcesses);
     MPI_Comm_rank(MPI_COMM_WORLD, &processId);
 
-    int **grid, **newgrid, **aux;
+    int **grid, **newgrid;
     int upperNeighbor, lowerNeighbor, sum = 0;
     int numberOfRowsPerProc = N/noProcesses;
 
@@ -250,7 +248,7 @@ int main(int argc, char * argv[]) {
 
     init(grid, newgrid, numberOfRowsPerProc, &upperNeighbor, &lowerNeighbor, processId, noProcesses);
 
-    gameRounds(grid, newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, aux);
+    gameRounds(grid, newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId);
 
     finalCalculations(grid, numberOfRowsPerProc, &sum, &finalSum);
 
