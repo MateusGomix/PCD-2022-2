@@ -17,7 +17,7 @@
 
 /*##############< Size Parameters >#############*/
 #define N 2048
-#define ROUNDS 3
+#define ROUNDS 2000
 
 /*##############< Custom Methods >#############*/
 
@@ -185,24 +185,24 @@ void finalCalculations(int **grid, int numberOfRowsPerProc, int *sum, int *final
         }
     }
 
-    printf("Soma final processo %d: %d\n", processId, *sum);
+    //printf("Soma final processo %d: %d\n", processId, *sum);
 
     MPI_Reduce(sum, finalSum, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
 }
 
-void gameRounds(int **grid, int **newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId, int *sum, int *finalSum){
+void gameRounds(int ***grid, int ***newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId, int *sum, int *finalSum){
     for(int i = 0; i < ROUNDS; i++){
-        exchangeNeighbors(grid, newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, i, processId);
+        exchangeNeighbors(*grid, *newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, i, processId);
 
         /*for(int j = 0; j < 5; j++){
             printf("%d ", newgrid[numberOfRowsPerProc + 1][j]);
         }*/
 
-        newGridCalculation(grid, newgrid, numberOfRowsPerProc);
+        newGridCalculation(*grid, *newgrid, numberOfRowsPerProc);
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        swap(&grid, &newgrid);
+        swap(grid, newgrid);
 
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -259,9 +259,9 @@ int main(int argc, char * argv[]) {
 
     init(grid, newgrid, numberOfRowsPerProc, &upperNeighbor, &lowerNeighbor, processId, noProcesses);
 
-    gameRounds(grid, newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, &sum, &finalSum);
+    gameRounds(&grid, &newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, &sum, &finalSum);
 
-    int auxSum = 0;
+    /*int auxSum = 0;
 
     for(int j = 0; j < numberOfRowsPerProc; j++){
         for(int k = 0; k < N; k++){
@@ -269,7 +269,7 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    printf("Soma dentro do main grid do processo %d: %d\n", processId, auxSum);
+    printf("Soma dentro do main grid do processo %d: %d\n", processId, auxSum);*/
 
     finalCalculations(grid, numberOfRowsPerProc, &sum, &finalSum, processId);
 
