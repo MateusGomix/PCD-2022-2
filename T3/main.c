@@ -17,7 +17,7 @@
 
 /*##############< Size Parameters >#############*/
 #define N 2048
-#define ROUNDS 2000
+#define ROUNDS 3
 
 /*##############< Custom Methods >#############*/
 
@@ -190,9 +190,9 @@ void finalCalculations(int **grid, int numberOfRowsPerProc, int *sum, int *final
     MPI_Reduce(sum, finalSum, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
 }
 
-void gameRounds(int ***grid, int ***newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId, int *sum, int *finalSum){
+void gameRounds(int ***grid, int ***newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId, int *sum, int *finalSum, int noProcesses){
     for(int i = 0; i < ROUNDS; i++){
-        exchangeNeighbors(*grid, *newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, i, processId);
+        if(noProcesses > 1) exchangeNeighbors(*grid, *newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, i, processId);
 
         /*for(int j = 0; j < 5; j++){
             printf("%d ", newgrid[numberOfRowsPerProc + 1][j]);
@@ -259,7 +259,7 @@ int main(int argc, char * argv[]) {
 
     init(grid, newgrid, numberOfRowsPerProc, &upperNeighbor, &lowerNeighbor, processId, noProcesses);
 
-    gameRounds(&grid, &newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, &sum, &finalSum);
+    gameRounds(&grid, &newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, &sum, &finalSum, noProcesses);
 
     /*int auxSum = 0;
 
