@@ -20,12 +20,11 @@
 
 /*##############< Size Parameters >#############*/
 #define N 2048
-#define ROUNDS 2000
+#define ROUNDS 4
 
 /*##############< Custom Methods >#############*/
 
-int numero_vizinhos(int** matriz, int x, int y, int numberOfRowsPerProc)
-{
+int numero_vizinhos(int** matriz, int x, int y, int numberOfRowsPerProc){
     int total;
     int yc = y - 1, yb = y + 1;
     int xe = x - 1, xd = x + 1;
@@ -49,24 +48,12 @@ int numero_vizinhos(int** matriz, int x, int y, int numberOfRowsPerProc)
 }
 
 void init(int **grid, int **newgrid, int numberOfRowsPerProc, int *upperNeighbor, int *lowerNeighbor, int processId, int noProcesses){
-    // Rows allocation, 2 more rows for neighbors
-    /*grid = (int**) malloc((numberOfRowsPerProc + 2) * sizeof(int*));
-    newgrid = (int**) malloc((numberOfRowsPerProc + 2) * sizeof(int*));*/
-
-    // Columns allocation
-    /*for(int i = 0; i < (numberOfRowsPerProc + 2); i++){
-        grid[i] = (int*) malloc(N * sizeof(int));
-        newgrid[i] = (int*) malloc(N * sizeof(int));
-    }*/
-
     for(int i = 0; i < (numberOfRowsPerProc + 2); i++){
         for(int j = 0; j < N; j++){
             grid[i][j] = 0;
             newgrid[i][j] = 0;
         }
     }
-
-    //printf("%d ", numberOfRowsPerProc);
 
     // Initial living cells and neighbors definition 
     if(processId == 0){
@@ -94,29 +81,6 @@ void init(int **grid, int **newgrid, int numberOfRowsPerProc, int *upperNeighbor
         *lowerNeighbor = processId - 1;
         *upperNeighbor = (processId + 1) % noProcesses;
     }
-
-    /* LITTLE HELP*/
-
-        /*int auxSum = 0;
-
-        for(int j = 0; j < numberOfRowsPerProc; j++){
-            for(int k = 0; k < N; k++){
-                auxSum += grid[j][k];
-            }
-        }
-
-        printf("Soma atual grid do processo %d: %d\n", processId, auxSum);
-
-        auxSum = 0;
-
-        for(int j = 0; j < numberOfRowsPerProc; j++){
-            for(int k = 0; k < N; k++){
-                auxSum += newgrid[j][k];
-            }
-        }
-
-        printf("Soma atual newgrid do processo %d: %d\n", processId, auxSum);*/
-
 }
 
 void copyRow(int *src, int *dest){
@@ -127,9 +91,6 @@ void copyRow(int *src, int *dest){
 
 void exchangeNeighbors(int **grid, int **newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int currentRound, int processId){
     MPI_Status status;
-    //int sendUp[N], sendDown[N], recvUp[N], recvDown[N];
-
-    //printf("Troca entre vizinhos\n");
 
     if(processId % 2 == 0){
         // Receive row from upper neighbor
@@ -165,41 +126,28 @@ void newGridCalculation(int **grid, int **newgrid, int numberOfRowsPerProc){
                 newgrid[j][k] = 0;
         }
     }
-
-    /*for(int j = 0; j < N/100; j++){
-        printf("%d ", newgrid[numberOfRowsPerProc][N-j-1]);
-    }*/
 }
 
 void swap(int ***grid, int ***newgrid){
-
     int **aux = *grid;
 
     *grid = *newgrid;
     *newgrid = aux;
-
-    return;
 }
 
-void finalCalculations(int **grid, int numberOfRowsPerProc, int *sum, int *finalSum, int processId){
+void finalCalculations(int **grid, int numberOfRowsPerProc, int *sum, int *finalSum){
     for(int j = 0; j < numberOfRowsPerProc; j++){
         for(int k = 0; k < N; k++){
             *sum += grid[j][k];
         }
     }
 
-    //printf("Soma final processo %d: %d\n", processId, *sum);
-
     MPI_Reduce(sum, finalSum, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
 }
 
-void gameRounds(int ***grid, int ***newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId, int *sum, int *finalSum, int noProcesses){
+void gameRounds(int ***grid, int ***newgrid, int numberOfRowsPerProc, int upperNeighbor, int lowerNeighbor, int processId, int noProcesses){
     for(int i = 0; i < ROUNDS; i++){
         if(noProcesses > 1) exchangeNeighbors(*grid, *newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, i, processId);
-
-        /*for(int j = 0; j < 5; j++){
-            printf("%d ", newgrid[numberOfRowsPerProc + 1][j]);
-        }*/
 
         newGridCalculation(*grid, *newgrid, numberOfRowsPerProc);
 
@@ -208,32 +156,7 @@ void gameRounds(int ***grid, int ***newgrid, int numberOfRowsPerProc, int upperN
         swap(grid, newgrid);
 
         MPI_Barrier(MPI_COMM_WORLD);
-
-        /* LITTLE HELP*/
-
-        /*int auxSum = 0;
-
-        for(int j = 0; j < numberOfRowsPerProc; j++){
-            for(int k = 0; k < N; k++){
-                auxSum += grid[j][k];
-            }
-        }
-
-        printf("Soma apos swap grid do processo %d: %d\n", processId, auxSum);
-
-        auxSum = 0;
-
-        for(int j = 0; j < numberOfRowsPerProc; j++){
-            for(int k = 0; k < N; k++){
-                auxSum += newgrid[j][k];
-            }
-        }
-
-        printf("Soma apos swap newgrid do processo %d: %d\n", processId, auxSum);*/
-        
     }
-
-    //finalCalculations(grid, numberOfRowsPerProc, sum, finalSum, processId);
 }
 
 /*##############< Main Program >#############*/
@@ -265,19 +188,9 @@ int main(int argc, char * argv[]) {
     double start;
     if(processId == 0) start = omp_get_wtime();
 
-    gameRounds(&grid, &newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, &sum, &finalSum, noProcesses);
+    gameRounds(&grid, &newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, noProcesses);
 
-    /*int auxSum = 0;
-
-    for(int j = 0; j < numberOfRowsPerProc; j++){
-        for(int k = 0; k < N; k++){
-            auxSum += grid[j][k];
-        }
-    }
-
-    printf("Soma dentro do main grid do processo %d: %d\n", processId, auxSum);*/
-
-    finalCalculations(grid, numberOfRowsPerProc, &sum, &finalSum, processId);
+    finalCalculations(grid, numberOfRowsPerProc, &sum, &finalSum);
 
     if(processId == 0) {
         double end = omp_get_wtime();
