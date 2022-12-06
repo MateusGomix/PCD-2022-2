@@ -9,15 +9,18 @@
     *--------------------------------*
 */
 
+// mpicc -o main main.c -fopenmp && time mpiexec -np 8 --oversubscribe ./main
 
 /*##############< Libs Include >#############*/
 #include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
+#include <sys/time.h>
 
 /*##############< Size Parameters >#############*/
 #define N 2048
-#define ROUNDS 3
+#define ROUNDS 2000
 
 /*##############< Custom Methods >#############*/
 
@@ -259,6 +262,9 @@ int main(int argc, char * argv[]) {
 
     init(grid, newgrid, numberOfRowsPerProc, &upperNeighbor, &lowerNeighbor, processId, noProcesses);
 
+    double start;
+    if(processId == 0) start = omp_get_wtime();
+
     gameRounds(&grid, &newgrid, numberOfRowsPerProc, upperNeighbor, lowerNeighbor, processId, &sum, &finalSum, noProcesses);
 
     /*int auxSum = 0;
@@ -273,7 +279,11 @@ int main(int argc, char * argv[]) {
 
     finalCalculations(grid, numberOfRowsPerProc, &sum, &finalSum, processId);
 
-    if(processId == 0) printf("Somatório final: %d\n", finalSum);
+    if(processId == 0) {
+        double end = omp_get_wtime();
+        printf("Somatório final: %d\n", finalSum);
+        printf("Tempo paralelo: %.3fs\n", end - start);
+    }
 
     // Finalize parallelism
     MPI_Finalize();
